@@ -1,5 +1,15 @@
 class Projects {}
 
+class Helper {
+  static moveElement(elementId, newDestination) {
+    const element = document.getElementById(elementId);
+    const destinationElement = document.querySelector(newDestination);
+    destinationElement.append(element);
+  }
+}
+
+class ToolTip {}
+
 class ProjectItem {
   constructor(id, updateProjectList) {
     this.updateProjectListHandler = updateProjectList;
@@ -9,15 +19,21 @@ class ProjectItem {
   }
   infoButton() {}
   switchProject() {
+    //     const projectItemElement = document.getElementById(this.id);
+
     const elementItem = document.querySelector(`#${this.id}`);
     const switchButton = elementItem.querySelector("button:last-of-type");
-    switchButton.addEventListener("click", this.updateProjectListHandler);
+    switchButton.addEventListener(
+      "click",
+      this.updateProjectListHandler.bind(null, this.id)
+    );
   }
 }
 
 class ProjectList {
   projects = [];
   constructor(type) {
+    this.type = type;
     const projectItems = document.querySelectorAll(`#${type}-projects li`);
     // console.log(projectItems);
     for (let projectItem of projectItems) {
@@ -25,18 +41,19 @@ class ProjectList {
         new ProjectItem(projectItem.id, this.switchProject.bind(this))
       );
     }
-    // console.log(this.projects);
-    // const finishedtItems = document.querySelectorAll(`#${type}-projects`);
-    // console.log(finishedtItems);
   }
 
   setSwitchHandler(switchHandlerFunction) {
     this.switchHandler = switchHandlerFunction;
   }
-  addProject() {
-    console.log(this);
+  addProject(project) {
+    this.projects.push(project);
+    Helper.moveElement(project.id, `#${this.type}-projects ul`);
+    // console.log(this);
   }
+
   switchProject(projectId) {
+    // this.switchHandler(this.projects.find((p) => p.id === projectId));
     this.switchHandler(this.projects.find((e) => e.id === projectId));
     // const projectIndex = this.projects.findIndex((e) => e.id === projectId);
     // this.projects.splice(projectIndex, 1);
