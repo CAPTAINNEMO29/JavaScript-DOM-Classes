@@ -1,6 +1,12 @@
 class Projects {}
 
 class Helper {
+  static claerEvents(element) {
+    const clonedElement = element.cloneNode(true);
+    element.replaceWith(clonedElement);
+    return clonedElement;
+  }
+
   static moveElement(elementId, newDestination) {
     const element = document.getElementById(elementId);
     const destinationElement = document.querySelector(newDestination);
@@ -11,22 +17,27 @@ class Helper {
 class ToolTip {}
 
 class ProjectItem {
-  constructor(id, updateProjectList) {
+  constructor(id, updateProjectList, type) {
     this.updateProjectListHandler = updateProjectList;
     this.id = id;
     this.infoButton();
-    this.switchProject();
+    this.switchProject(type);
   }
   infoButton() {}
-  switchProject() {
+  switchProject(type) {
     //     const projectItemElement = document.getElementById(this.id);
-
     const elementItem = document.querySelector(`#${this.id}`);
-    const switchButton = elementItem.querySelector("button:last-of-type");
+    let switchButton = elementItem.querySelector("button:last-of-type");
+    switchButton = Helper.claerEvents(switchButton);
+    switchButton.textContent = type === "active" ? "finish" : "Activate";
     switchButton.addEventListener(
       "click",
       this.updateProjectListHandler.bind(null, this.id)
     );
+  }
+  update(updateProjectList, type) {
+    this.updateProjectListHandler = updateProjectList;
+    this.switchProject(type);
   }
 }
 
@@ -38,7 +49,11 @@ class ProjectList {
     // console.log(projectItems);
     for (let projectItem of projectItems) {
       this.projects.push(
-        new ProjectItem(projectItem.id, this.switchProject.bind(this))
+        new ProjectItem(
+          projectItem.id,
+          this.switchProject.bind(this),
+          this.type
+        )
       );
     }
   }
@@ -50,6 +65,7 @@ class ProjectList {
     this.projects.push(project);
     Helper.moveElement(project.id, `#${this.type}-projects ul`);
     // console.log(this);
+    project.update(this.switchProject.bind(this), this.type);
   }
 
   switchProject(projectId) {
